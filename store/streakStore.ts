@@ -7,6 +7,7 @@ interface StreakState {
     current: number;
     lastCompletedDate: string | null;
     registerCompletion: () => void;
+    resetStreak: () => void;
 }
 
 export const useStreakStore = create<StreakState>()(
@@ -33,6 +34,13 @@ export const useStreakStore = create<StreakState>()(
                 }
 
                 set({ current: 1, lastCompletedDate: today });
+            },
+
+            resetStreak: () => {
+                set({
+                    current: 0,
+                    lastCompletedDate: null
+                });
             },
         }),
         {

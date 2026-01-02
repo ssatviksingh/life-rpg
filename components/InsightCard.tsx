@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from "react-native";
+import { palette, spacing, radius } from "../utils/ui";
 
 interface Props {
   title: string;
@@ -16,20 +17,23 @@ export const InsightCard = ({ title, body }: Props) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#F8FAFC',
-    padding: 16,
-    borderRadius: 14,
-    marginBottom: 12,
+    backgroundColor: palette.surfaceElevated,
+    padding: spacing.md,
+    borderRadius: radius.lg,
+    marginBottom: spacing.md,
+    shadowColor: palette.shadow,
+    shadowOpacity: 1,
+    shadowRadius: 16,
   },
   title: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 6,
+    fontWeight: "600",
+    color: palette.ink,
+    marginBottom: spacing.xs,
   },
   body: {
     fontSize: 13,
-    color: '#4B5563',
+    color: palette.inkMuted,
     lineHeight: 20,
   },
 });

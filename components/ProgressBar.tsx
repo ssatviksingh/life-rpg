@@ -1,26 +1,40 @@
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet } from "react-native";
+import { palette } from "../utils/ui";
 
 interface Props {
   progress: number; // 0–1
+  height?: number;
+  color?: string;
+  backgroundColor?: string;
 }
 
-export const ProgressBar = ({ progress }: Props) => {
+export const ProgressBar = ({
+  progress,
+  height = 10,
+  color = palette.accentPrimary,
+  backgroundColor = palette.divider,
+}: Props) => {
   return (
-    <View style={styles.container}>
-      <View style={[styles.fill, { width: `${Math.min(progress * 100, 100)}%` }]} />
+    <View style={[styles.container, { height, backgroundColor }]}>
+      <View
+        style={[
+          styles.fill,
+          {
+            width: `${Math.min(progress * 100, 100)}%`,
+            backgroundColor: color,
+          },
+        ]}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    height: 10,
-    backgroundColor: '#E5E7EB',
     borderRadius: 6,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   fill: {
-    height: '100%',
-    backgroundColor: '#60A5FA',
+    height: "100%",
   },
 });
