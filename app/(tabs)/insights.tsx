@@ -1,11 +1,13 @@
 import { ScrollView, Text, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInUp } from "react-native-reanimated";
-import { palette, spacing } from "../../utils/ui";
+import { spacing } from "../../utils/ui";
 import { usePlayerStore } from "../../store/playerStore";
 import { useQuestStore } from "../../store/questStore";
 import { useStreakStore } from "../../store/streakStore";
 import { useAchievementStore } from "../../store/achievementStore";
+import { useTheme } from "../../contexts/ThemeContext";
 import { useCompanionStore } from "../../store/companionStore";
 import { InsightCard } from "../../components/InsightCard";
 import { AchievementBadge } from "../../components/AchievementBadge";
@@ -14,6 +16,7 @@ import { SimpleChart } from "../../components/SimpleChart";
 import { getXPToNextLevel, getCurrentLevelXP } from "../../utils/xp";
 
 export default function InsightsScreen() {
+  const { palette } = useTheme(); // Use dynamic theme palette
   const { level, xp, stamina } = usePlayerStore();
   const { quests } = useQuestStore();
   const { current: streak } = useStreakStore();
@@ -128,168 +131,178 @@ export default function InsightsScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <LinearGradient
-        colors={["#667eea", "#764ba2"]}
-        style={styles.backgroundGradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      />
+    <SafeAreaView style={styles.container} edges={["top"]}>
+      <View style={styles.container}>
+        <LinearGradient
+          colors={["#667eea", "#764ba2"]}
+          style={styles.backgroundGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        />
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <Animated.View style={styles.content} entering={FadeInUp.delay(200)}>
-          <Text style={styles.title}>Insights</Text>
-          <Text style={styles.subtle}>
-            Light reflections — nothing you need to act on.
-          </Text>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <Animated.View style={styles.content} entering={FadeInUp.delay(200)}>
+            <Text style={styles.title}>Insights</Text>
+            <Text style={styles.subtle}>
+              Light reflections — nothing you need to act on.
+            </Text>
 
-          {hasEnoughData ? (
-            <>
-              {/* Stats Overview */}
-              <View style={styles.statsContainer}>
-                <View style={styles.statCard}>
-                  <Text style={styles.statValue}>{level}</Text>
-                  <Text style={styles.statLabel}>Level</Text>
+            {hasEnoughData ? (
+              <>
+                {/* Stats Overview */}
+                <View style={styles.statsContainer}>
+                  <View style={styles.statCard}>
+                    <Text style={styles.statValue}>{level}</Text>
+                    <Text style={styles.statLabel}>Level</Text>
+                  </View>
+                  <View style={styles.statCard}>
+                    <Text style={styles.statValue}>{streak}</Text>
+                    <Text style={styles.statLabel}>Day Streak</Text>
+                  </View>
+                  <View style={styles.statCard}>
+                    <Text style={styles.statValue}>
+                      {Math.round(completionRate)}%
+                    </Text>
+                    <Text style={styles.statLabel}>Completion</Text>
+                  </View>
                 </View>
-                <View style={styles.statCard}>
-                  <Text style={styles.statValue}>{streak}</Text>
-                  <Text style={styles.statLabel}>Day Streak</Text>
+
+                {/* XP Progress */}
+                <View style={styles.progressSection}>
+                  <View style={styles.progressHeader}>
+                    <Text style={styles.progressTitle}>
+                      Level {level} Progress
+                    </Text>
+                    <Text style={styles.progressValue}>
+                      {currentLevelXP}/{xpToNext} XP
+                    </Text>
+                  </View>
+                  <ProgressBar
+                    progress={xpProgress}
+                    height={10}
+                    color={palette.accentPrimary}
+                    backgroundColor={palette.surface}
+                  />
                 </View>
-                <View style={styles.statCard}>
-                  <Text style={styles.statValue}>
-                    {Math.round(completionRate)}%
+
+                {/* Performance Charts */}
+                <Animated.View
+                  style={styles.section}
+                  entering={FadeInUp.delay(500)}
+                >
+                  <Text style={styles.sectionTitle}>
+                    📊 Performance Analytics
                   </Text>
-                  <Text style={styles.statLabel}>Completion</Text>
-                </View>
-              </View>
 
-              {/* XP Progress */}
-              <View style={styles.progressSection}>
-                <View style={styles.progressHeader}>
-                  <Text style={styles.progressTitle}>
-                    Level {level} Progress
-                  </Text>
-                  <Text style={styles.progressValue}>
-                    {currentLevelXP}/{xpToNext} XP
-                  </Text>
-                </View>
-                <ProgressBar
-                  progress={xpProgress}
-                  height={10}
-                  color={palette.accentPrimary}
-                  backgroundColor={palette.surface}
-                />
-              </View>
+                  {categoryChartData.length > 0 && (
+                    <SimpleChart
+                      data={categoryChartData}
+                      title="Quests Completed by Category"
+                      height={180}
+                    />
+                  )}
 
-              {/* Performance Charts */}
-              <Animated.View
-                style={styles.section}
-                entering={FadeInUp.delay(500)}
-              >
-                <Text style={styles.sectionTitle}>
-                  📊 Performance Analytics
-                </Text>
-
-                {categoryChartData.length > 0 && (
                   <SimpleChart
-                    data={categoryChartData}
-                    title="Quests Completed by Category"
+                    data={weeklyData}
+                    title="Weekly Quest Activity"
                     height={180}
                   />
+                </Animated.View>
+
+                {/* Companion Stats */}
+                <Animated.View
+                  style={[styles.section, styles.companionStatsSection]}
+                  entering={FadeInUp.delay(600)}
+                >
+                  <Text style={styles.sectionTitle}>
+                    💝 Companion Statistics
+                  </Text>
+                  <View style={styles.companionStats}>
+                    <View style={styles.companionStat}>
+                      <Text style={styles.companionStatValue}>{affection}</Text>
+                      <Text style={styles.companionStatLabel}>
+                        Affection Level
+                      </Text>
+                    </View>
+                    <View style={styles.companionStat}>
+                      <Text style={styles.companionStatValue}>
+                        {interactionCount}
+                      </Text>
+                      <Text style={styles.companionStatLabel}>
+                        Interactions
+                      </Text>
+                    </View>
+                    <View style={styles.companionStat}>
+                      <Text style={styles.companionStatValue}>
+                        {Math.round((affection / 100) * 20)}%
+                      </Text>
+                      <Text style={styles.companionStatLabel}>XP Bonus</Text>
+                    </View>
+                  </View>
+                </Animated.View>
+
+                {/* Personalized Insights */}
+                {getPersonalizedInsights().map((insight, index) => (
+                  <InsightCard
+                    key={index}
+                    title={insight.title}
+                    body={insight.body}
+                  />
+                ))}
+
+                {/* Activity Summary */}
+                <InsightCard
+                  title="Activity Summary"
+                  body={`This period: ${completedQuests} quests completed out of ${totalQuests} total. Current energy level: ${Math.round(
+                    stamina
+                  )}/100.`}
+                />
+
+                {/* Recent Achievements */}
+                {getRecentAchievements().length > 0 && (
+                  <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>
+                      🏆 Recent Achievements
+                    </Text>
+                    {getRecentAchievements().map((achievement) => (
+                      <AchievementBadge
+                        key={achievement.id}
+                        achievement={achievement}
+                      />
+                    ))}
+                  </View>
                 )}
 
-                <SimpleChart
-                  data={weeklyData}
-                  title="Weekly Quest Activity"
-                  height={180}
-                />
-              </Animated.View>
-
-              {/* Companion Stats */}
-              <Animated.View
-                style={[styles.section, styles.companionStatsSection]}
-                entering={FadeInUp.delay(600)}
-              >
-                <Text style={styles.sectionTitle}>💝 Companion Statistics</Text>
-                <View style={styles.companionStats}>
-                  <View style={styles.companionStat}>
-                    <Text style={styles.companionStatValue}>{affection}</Text>
-                    <Text style={styles.companionStatLabel}>
-                      Affection Level
-                    </Text>
-                  </View>
-                  <View style={styles.companionStat}>
-                    <Text style={styles.companionStatValue}>
-                      {interactionCount}
-                    </Text>
-                    <Text style={styles.companionStatLabel}>Interactions</Text>
-                  </View>
-                  <View style={styles.companionStat}>
-                    <Text style={styles.companionStatValue}>
-                      {Math.round((affection / 100) * 20)}%
-                    </Text>
-                    <Text style={styles.companionStatLabel}>XP Bonus</Text>
-                  </View>
-                </View>
-              </Animated.View>
-
-              {/* Personalized Insights */}
-              {getPersonalizedInsights().map((insight, index) => (
-                <InsightCard
-                  key={index}
-                  title={insight.title}
-                  body={insight.body}
-                />
-              ))}
-
-              {/* Activity Summary */}
-              <InsightCard
-                title="Activity Summary"
-                body={`This period: ${completedQuests} quests completed out of ${totalQuests} total. Current energy level: ${stamina}/100.`}
-              />
-
-              {/* Recent Achievements */}
-              {getRecentAchievements().length > 0 && (
+                {/* Achievement Progress */}
                 <View style={styles.section}>
                   <Text style={styles.sectionTitle}>
-                    🏆 Recent Achievements
+                    🎯 Achievement Progress
                   </Text>
-                  {getRecentAchievements().map((achievement) => (
-                    <AchievementBadge
-                      key={achievement.id}
-                      achievement={achievement}
-                    />
-                  ))}
+                  {achievements
+                    .filter((a) => !a.unlocked)
+                    .slice(0, 3)
+                    .map((achievement) => (
+                      <AchievementBadge
+                        key={achievement.id}
+                        achievement={achievement}
+                        showProgress={true}
+                      />
+                    ))}
                 </View>
-              )}
-
-              {/* Achievement Progress */}
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>🎯 Achievement Progress</Text>
-                {achievements
-                  .filter((a) => !a.unlocked)
-                  .slice(0, 3)
-                  .map((achievement) => (
-                    <AchievementBadge
-                      key={achievement.id}
-                      achievement={achievement}
-                      showProgress={true}
-                    />
-                  ))}
-              </View>
-            </>
-          ) : (
-            <Text style={styles.subtle}>
-              Insights will appear once there's enough activity to reflect on.
-            </Text>
-          )}
-        </Animated.View>
-      </ScrollView>
-    </View>
+              </>
+            ) : (
+              <Text style={styles.subtle}>
+                Insights will appear once there's enough activity to reflect on.
+              </Text>
+            )}
+          </Animated.View>
+        </ScrollView>
+      </View>
+    </SafeAreaView>
   );
 }
 

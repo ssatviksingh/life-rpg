@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   ScrollView,
   Text,
@@ -5,10 +6,12 @@ import {
   View,
   Pressable,
   Alert,
+  Switch,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInUp } from "react-native-reanimated";
-import { palette, spacing, radius } from "../../utils/ui";
+import { spacing, radius } from "../../utils/ui";
 import { useTheme } from "../../contexts/ThemeContext";
 import { usePlayerStore } from "../../store/playerStore";
 import { useQuestStore } from "../../store/questStore";
@@ -16,6 +19,7 @@ import { useStreakStore } from "../../store/streakStore";
 import { useAchievementStore } from "../../store/achievementStore";
 
 export default function SettingsScreen() {
+  const { palette } = useTheme(); // Use dynamic theme palette
   const resetPlayer = usePlayerStore((state) => state.resetPlayer);
   const resetQuests = useQuestStore((state) => state.resetQuests);
   const resetStreak = useStreakStore((state) => state.resetStreak);
@@ -28,6 +32,10 @@ export default function SettingsScreen() {
     setThemeMode,
     palette: themePalette,
   } = useTheme();
+
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [hapticsEnabled, setHapticsEnabled] = useState(true);
 
   const handleResetData = () => {
     Alert.alert(
@@ -50,10 +58,73 @@ export default function SettingsScreen() {
     );
   };
 
-  const settingsOptions = [
+  const renderSection = (title: string, options: any[], delay: number = 0) => (
+    <Animated.View entering={FadeInUp.delay(delay)}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      {options.map((option, index) => (
+        <Animated.View
+          key={option.title}
+          entering={FadeInUp.delay(delay + 100 + index * 50)}
+        >
+          <Pressable
+            style={[styles.optionCard, option.danger && styles.dangerCard]}
+            onPress={option.action}
+            disabled={option.disabled}
+          >
+            <View style={styles.optionContent}>
+              <View style={styles.optionHeader}>
+                <View style={styles.optionTextContainer}>
+                  <Text
+                    style={[
+                      styles.optionTitle,
+                      option.danger && styles.dangerText,
+                      option.disabled && styles.disabledText,
+                    ]}
+                  >
+                    {option.title}
+                  </Text>
+                  {option.description && (
+                    <Text
+                      style={[
+                        styles.optionDescription,
+                        option.danger && styles.dangerText,
+                        option.disabled && styles.disabledText,
+                      ]}
+                    >
+                      {option.description}
+                    </Text>
+                  )}
+                </View>
+                {option.hasSwitch && (
+                  <Switch
+                    value={option.switchValue}
+                    onValueChange={option.onSwitchChange}
+                    trackColor={{
+                      false: palette.divider,
+                      true: palette.accentSecondary,
+                    }}
+                    thumbColor={option.switchValue ? "#fff" : "#f4f3f4"}
+                  />
+                )}
+                {option.icon && (
+                  <Text style={styles.optionIcon}>{option.icon}</Text>
+                )}
+              </View>
+              {option.subtitle && (
+                <Text style={styles.optionSubtitle}>{option.subtitle}</Text>
+              )}
+            </View>
+          </Pressable>
+        </Animated.View>
+      ))}
+    </Animated.View>
+  );
+
+  const appearanceOptions = [
     {
       title: "Theme",
       description: `Current: ${isDark ? "Dark" : "Light"} Mode`,
+      icon: "🎨",
       action: () => {
         Alert.alert("Theme Settings", "Choose your preferred theme", [
           { text: "Light", onPress: () => setThemeMode("light") },
@@ -63,77 +134,140 @@ export default function SettingsScreen() {
         ]);
       },
     },
+  ];
+
+  const preferencesOptions = [
+    {
+      title: "Sound Effects",
+      description: "Play sounds for actions and achievements",
+      icon: "🔊",
+      hasSwitch: true,
+      switchValue: soundEnabled,
+      onSwitchChange: setSoundEnabled,
+    },
+    {
+      title: "Haptic Feedback",
+      description: "Vibrate on interactions and completions",
+      icon: "📳",
+      hasSwitch: true,
+      switchValue: hapticsEnabled,
+      onSwitchChange: setHapticsEnabled,
+    },
+    {
+      title: "Notifications",
+      description: "Reminders for daily quests and streaks",
+      icon: "🔔",
+      hasSwitch: true,
+      switchValue: notificationsEnabled,
+      onSwitchChange: setNotificationsEnabled,
+      disabled: true,
+      subtitle: "Coming soon in future updates",
+    },
+  ];
+
+  const dataOptions = [
+    {
+      title: "Export Data",
+      description: "Download your progress as JSON file",
+      icon: "📤",
+      action: () => {
+        Alert.alert(
+          "Coming Soon",
+          "Data export feature will be available in a future update!"
+        );
+      },
+      disabled: true,
+    },
+    {
+      title: "Import Data",
+      description: "Restore progress from backup file",
+      icon: "📥",
+      action: () => {
+        Alert.alert(
+          "Coming Soon",
+          "Data import feature will be available in a future update!"
+        );
+      },
+      disabled: true,
+    },
+  ];
+
+  const supportOptions = [
     {
       title: "About Life RPG",
-      description: "Transform your daily habits into an epic adventure",
+      description: "Learn more about the app",
+      icon: "ℹ️",
       action: () =>
         Alert.alert(
           "About Life RPG",
-          "🎮 Life RPG v1.0\n\nTransform your daily habits into an epic adventure! Level up your life through gamified personal development.\n\n✨ Features:\n• Daily Quests & Challenges\n• XP System & Level Progression\n• Companion Character\n• Streak Tracking\n• Achievement System\n• Custom Quest Creation\n• Dark/Light Theme Support\n\n🎯 Purpose:\nMake personal growth engaging and sustainable through game mechanics and positive reinforcement.\n\n📱 Built with React Native & Expo\n💝 Made with passion for self-improvement\n\n© 2026 Life RPG",
+          "🎮 Life RPG v2.0 - Enhanced Edition\n\nTransform your daily habits into an epic adventure! Level up your life through gamified personal development.\n\n✨ Enhanced Features:\n• Daily Quests & Dynamic Challenges\n• XP System & Advanced Level Progression\n• Interactive Companion Character\n• Advanced Streak Tracking\n• Comprehensive Achievement System\n• Custom Quest Creation\n• Dark/Light Theme Support\n• Sound Effects & Haptic Feedback\n• Progress Analytics & Insights\n• Skill Tree Development\n\n🎯 Mission:\nMake personal growth engaging and sustainable through innovative game mechanics and positive reinforcement.\n\n📱 Technical Excellence:\nBuilt with React Native & Expo\nPowered by cutting-edge mobile technologies\nOptimized for performance and user experience\n\n💝 Made with passion for self-improvement\n\n© 2026 Life RPG Team",
           [{ text: "Got it!" }]
         ),
     },
     {
+      title: "Help & Support",
+      description: "Get help or report issues",
+      icon: "🆘",
+      action: () => {
+        Alert.alert(
+          "Help & Support",
+          "For support, please contact us at support@liferpg.app or visit our website for FAQs and tutorials."
+        );
+      },
+    },
+    {
+      title: "Rate & Review",
+      description: "Share your feedback on app stores",
+      icon: "⭐",
+      action: () => {
+        Alert.alert(
+          "Rate & Review",
+          "Thank you for considering! Your feedback helps us improve Life RPG for everyone."
+        );
+      },
+    },
+  ];
+
+  const dangerOptions = [
+    {
       title: "Reset All Progress",
       description: "Permanently delete all data and start fresh",
+      icon: "⚠️",
       action: handleResetData,
       danger: true,
     },
   ];
 
   return (
-    <View style={styles.container}>
-      <LinearGradient
-        colors={["#667eea", "#764ba2"]}
-        style={styles.backgroundGradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      />
+    <SafeAreaView style={styles.container} edges={["top"]}>
+      <View style={styles.container}>
+        <LinearGradient
+          colors={["#667eea", "#764ba2"]}
+          style={styles.backgroundGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        />
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <Animated.View style={styles.content} entering={FadeInUp.delay(200)}>
-          <Text style={styles.title}>Settings</Text>
-          <Text style={styles.subtitle}>
-            Customize your Life RPG experience
-          </Text>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <Animated.View style={styles.content} entering={FadeInUp.delay(200)}>
+            <Text style={styles.title}>⚙️ Settings</Text>
+            <Text style={styles.subtitle}>
+              Customize your Life RPG adventure
+            </Text>
 
-          {settingsOptions.map((option, index) => (
-            <Animated.View
-              key={option.title}
-              entering={FadeInUp.delay(400 + index * 100)}
-            >
-              <Pressable
-                style={[styles.optionCard, option.danger && styles.dangerCard]}
-                onPress={option.action}
-              >
-                <View style={styles.optionContent}>
-                  <Text
-                    style={[
-                      styles.optionTitle,
-                      option.danger && styles.dangerText,
-                    ]}
-                  >
-                    {option.title}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.optionDescription,
-                      option.danger && styles.dangerText,
-                    ]}
-                  >
-                    {option.description}
-                  </Text>
-                </View>
-              </Pressable>
-            </Animated.View>
-          ))}
-        </Animated.View>
-      </ScrollView>
-    </View>
+            {renderSection("🎨 Appearance", appearanceOptions, 300)}
+            {renderSection("🔧 Preferences", preferencesOptions, 500)}
+            {renderSection("💾 Data Management", dataOptions, 700)}
+            {renderSection("🆘 Support", supportOptions, 900)}
+            {renderSection("⚠️ Danger Zone", dangerOptions, 1100)}
+          </Animated.View>
+        </ScrollView>
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -164,8 +298,8 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 24,
-    fontWeight: "700",
+    fontSize: 28,
+    fontWeight: "800",
     color: "white",
     textAlign: "center",
     marginBottom: spacing.sm,
@@ -175,16 +309,27 @@ const styles = StyleSheet.create({
   },
 
   subtitle: {
-    fontSize: 14,
+    fontSize: 16,
     color: "rgba(255, 255, 255, 0.9)",
     textAlign: "center",
-    marginBottom: spacing.xl,
-    lineHeight: 20,
+    marginBottom: spacing.xxl,
+    lineHeight: 22,
+  },
+
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "white",
+    marginBottom: spacing.md,
+    marginTop: spacing.lg,
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
 
   optionCard: {
     backgroundColor: "rgba(255, 255, 255, 0.95)",
-    borderRadius: spacing.lg,
+    borderRadius: radius.lg,
     padding: spacing.lg,
     marginBottom: spacing.md,
     shadowColor: palette.shadow,
@@ -199,9 +344,20 @@ const styles = StyleSheet.create({
   dangerCard: {
     borderColor: palette.accentError,
     borderWidth: 2,
+    backgroundColor: "rgba(255, 236, 236, 0.95)",
   },
 
   optionContent: {
+    flex: 1,
+  },
+
+  optionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  optionTextContainer: {
     flex: 1,
   },
 
@@ -218,7 +374,23 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
 
+  optionSubtitle: {
+    fontSize: 12,
+    color: palette.accentTertiary,
+    marginTop: spacing.xs,
+    fontStyle: "italic",
+  },
+
+  optionIcon: {
+    fontSize: 20,
+    marginLeft: spacing.md,
+  },
+
   dangerText: {
     color: palette.accentError,
+  },
+
+  disabledText: {
+    opacity: 0.5,
   },
 });

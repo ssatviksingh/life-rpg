@@ -1,18 +1,22 @@
 import { Text, StyleSheet, Pressable, View } from "react-native";
-import { palette, spacing, radius } from "../utils/ui";
+import { spacing, radius } from "../utils/ui";
+import { useTheme } from "../contexts/ThemeContext";
 import { Quest } from "../types/models";
 
 interface QuestCardProps {
   quest: Quest;
   onComplete: () => void;
   onSkip: () => void;
+  onRepeat?: () => void; // Optional prop for repeating custom quests
 }
 
 export const QuestCard: React.FC<QuestCardProps> = ({
   quest,
   onComplete,
   onSkip,
+  onRepeat,
 }) => {
+  const { palette } = useTheme(); // Use dynamic theme palette
   const accent = quest.isChallenge ? "#FFD700" : "#6366f1"; // Gold for challenges
 
   return (
@@ -60,7 +64,16 @@ export const QuestCard: React.FC<QuestCardProps> = ({
           <Text style={[styles.action, { color: accent }]}>Execute</Text>
         </Pressable>
       ) : quest.status === "completed" ? (
-        <Text style={styles.completedText}>✓ Progress acknowledged.</Text>
+        <View style={styles.completedActions}>
+          <Text style={styles.completedText}>✓ Progress acknowledged.</Text>
+          {onRepeat && (
+            <Pressable onPress={onRepeat} style={styles.repeatButton}>
+              <Text style={[styles.repeatButtonText, { color: accent }]}>
+                🔄 Repeat Quest
+              </Text>
+            </Pressable>
+          )}
+        </View>
       ) : (
         <Text style={styles.skippedText}>Skipped</Text>
       )}
@@ -140,6 +153,24 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: palette.inkMuted,
     marginTop: spacing.md,
+  },
+
+  completedActions: {
+    marginTop: spacing.md,
+  },
+
+  repeatButton: {
+    marginTop: spacing.sm,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: radius.sm,
+    alignSelf: "flex-start",
+  },
+
+  repeatButtonText: {
+    fontSize: 12,
+    fontWeight: "600",
   },
 
   skippedText: {

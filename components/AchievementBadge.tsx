@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { palette, spacing, radius } from "../utils/ui";
+import { spacing, radius } from "../utils/ui";
+import { useTheme } from "../contexts/ThemeContext";
 
 interface AchievementBadgeProps {
   achievement: {
@@ -19,6 +20,7 @@ export const AchievementBadge: React.FC<AchievementBadgeProps> = ({
   achievement,
   showProgress = false,
 }) => {
+  const { palette } = useTheme(); // Use dynamic theme palette
   const progressPercent =
     (achievement.progress / achievement.maxProgress) * 100;
 

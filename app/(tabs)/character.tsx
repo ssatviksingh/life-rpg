@@ -1,15 +1,22 @@
 import { ScrollView, Text, StyleSheet, View, Dimensions } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInUp } from "react-native-reanimated";
-import { palette, spacing, radius } from "../../utils/ui";
+import { spacing, radius } from "../../utils/ui";
+import { useTheme } from "../../contexts/ThemeContext";
 import { usePlayerStore } from "../../store/playerStore";
 import { SKILL_TREE } from "../../data/skillTree";
+import { getCharacterProfile } from "../../data/characterTitles";
 import { SkillNode } from "../../components/SkillNode";
 import { ProgressBar } from "../../components/ProgressBar";
 import { getXPToNextLevel, getCurrentLevelXP } from "../../utils/xp";
 
 export default function CharacterScreen() {
+  const { palette } = useTheme(); // Use dynamic theme palette
   const { level, xp } = usePlayerStore();
+
+  // Get character profile based on level
+  const characterProfile = getCharacterProfile(level);
 
   // Calculate stats
   const unlockedSkills = SKILL_TREE.filter(
@@ -25,183 +32,193 @@ export default function CharacterScreen() {
   const nextSkill = SKILL_TREE.find((skill) => level < skill.requiredLevel);
 
   return (
-    <View style={styles.container}>
-      <LinearGradient
-        colors={["#667eea", "#764ba2"]}
-        style={styles.backgroundGradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      />
+    <SafeAreaView style={styles.container} edges={["top"]}>
+      <View style={styles.container}>
+        <LinearGradient
+          colors={["#667eea", "#764ba2"]}
+          style={styles.backgroundGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        />
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Character Header */}
-        <Animated.View style={styles.header} entering={FadeInUp.delay(100)}>
-          <View style={styles.characterAvatar}>
-            <Text style={styles.avatarEmoji}>🧙‍♂️</Text>
-            <View style={styles.levelBadge}>
-              <Text style={styles.levelText}>{level}</Text>
-            </View>
-          </View>
-
-          <View style={styles.statsContainer}>
-            <Text style={styles.characterName}>Life Warrior</Text>
-            <Text style={styles.characterTitle}>Personal Growth Champion</Text>
-          </View>
-        </Animated.View>
-
-        {/* Stats Overview */}
-        <Animated.View
-          style={styles.statsOverview}
-          entering={FadeInUp.delay(200)}
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
         >
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>{unlockedSkills}</Text>
-            <Text style={styles.statLabel}>Skills Unlocked</Text>
-            <ProgressBar
-              progress={skillProgress}
-              height={4}
-              color={palette.accentSecondary}
-              backgroundColor={palette.divider}
-            />
-          </View>
+          {/* Character Header */}
+          <Animated.View style={styles.header} entering={FadeInUp.delay(100)}>
+            <View style={styles.characterAvatar}>
+              <Text style={styles.avatarEmoji}>🧙‍♂️</Text>
+              <View style={styles.levelBadge}>
+                <Text style={styles.levelText}>{level}</Text>
+              </View>
+            </View>
 
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>{level}</Text>
-            <Text style={styles.statLabel}>Current Level</Text>
-            <Text style={styles.xpText}>
-              {currentLevelXP}/{xpToNext} XP
-            </Text>
-          </View>
+            <View style={styles.statsContainer}>
+              <Text style={styles.characterName}>{characterProfile.name}</Text>
+              <Text style={styles.characterTitle}>
+                {characterProfile.title}
+              </Text>
+              <Text style={styles.characterDescription}>
+                {characterProfile.description}
+              </Text>
+            </View>
+          </Animated.View>
 
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>
-              {Math.round(skillProgress * 100)}%
-            </Text>
-            <Text style={styles.statLabel}>Mastery</Text>
-            <View style={styles.masteryIndicator}>
-              <View
-                style={[
-                  styles.masteryBar,
-                  { width: `${skillProgress * 100}%` },
-                ]}
+          {/* Stats Overview */}
+          <Animated.View
+            style={styles.statsOverview}
+            entering={FadeInUp.delay(200)}
+          >
+            <View style={styles.statCard}>
+              <Text style={styles.statValue}>{unlockedSkills}</Text>
+              <Text style={styles.statLabel}>Skills Unlocked</Text>
+              <ProgressBar
+                progress={skillProgress}
+                height={4}
+                color={palette.accentSecondary}
+                backgroundColor={palette.divider}
               />
             </View>
-          </View>
-        </Animated.View>
 
-        {/* XP Progress Bar */}
-        <Animated.View style={styles.xpSection} entering={FadeInUp.delay(300)}>
-          <View style={styles.xpHeader}>
-            <Text style={styles.xpTitle}>Level {level} Progress</Text>
-            <Text style={styles.xpValue}>
-              {currentLevelXP}/{xpToNext} XP
-            </Text>
-          </View>
-          <ProgressBar
-            progress={xpProgress}
-            height={8}
-            color={palette.accentPrimary}
-            backgroundColor={palette.surface}
-          />
-        </Animated.View>
+            <View style={styles.statCard}>
+              <Text style={styles.statValue}>{level}</Text>
+              <Text style={styles.statLabel}>Current Level</Text>
+              <Text style={styles.xpText}>
+                {currentLevelXP}/{xpToNext} XP
+              </Text>
+            </View>
 
-        {/* Next Skill Preview */}
-        {nextSkill && (
-          <Animated.View
-            style={styles.nextSkillCard}
-            entering={FadeInUp.delay(400)}
-          >
-            <Text style={styles.nextSkillTitle}>🔮 Next Skill</Text>
-            <Text style={styles.nextSkillName}>{nextSkill.title}</Text>
-            <Text style={styles.nextSkillDesc}>{nextSkill.description}</Text>
-            <Text style={styles.nextSkillReq}>
-              Requires Level {nextSkill.requiredLevel}
-            </Text>
-          </Animated.View>
-        )}
-
-        {/* Skill Tree Section */}
-        <Animated.View
-          style={styles.skillTreeSection}
-          entering={FadeInUp.delay(500)}
-        >
-          <Text style={styles.sectionTitle}>🛡️ Skill Tree</Text>
-          <Text style={styles.sectionSubtitle}>
-            Master these abilities through consistent growth and dedication.
-          </Text>
-
-          <View style={styles.skillTree}>
-            {SKILL_TREE.map((skill, index) => (
-              <Animated.View
-                key={skill.id}
-                entering={FadeInUp.delay(600 + index * 150)}
-                style={styles.skillWrapper}
-              >
-                <SkillNode
-                  skill={skill}
-                  unlocked={level >= skill.requiredLevel}
-                  currentLevel={level}
-                  currentXP={xp}
+            <View style={styles.statCard}>
+              <Text style={styles.statValue}>
+                {Math.round(skillProgress * 100)}%
+              </Text>
+              <Text style={styles.statLabel}>Mastery</Text>
+              <View style={styles.masteryIndicator}>
+                <View
+                  style={[
+                    styles.masteryBar,
+                    { width: `${skillProgress * 100}%` },
+                  ]}
                 />
-                {index < SKILL_TREE.length - 1 && (
-                  <View style={styles.skillConnector} />
-                )}
-              </Animated.View>
-            ))}
-          </View>
-        </Animated.View>
+              </View>
+            </View>
+          </Animated.View>
 
-        {/* Achievement Showcase */}
-        <Animated.View
-          style={styles.achievementsSection}
-          entering={FadeInUp.delay(800)}
-        >
-          <Text style={styles.achievementTitle}>🏆 Milestones</Text>
-          <View style={styles.achievementGrid}>
-            <View
-              style={[
-                styles.achievementBadge,
-                unlockedSkills >= 1 && styles.achievementUnlocked,
-              ]}
-            >
-              <Text style={styles.achievementEmoji}>🎯</Text>
-              <Text style={styles.achievementText}>First Steps</Text>
+          {/* XP Progress Bar */}
+          <Animated.View
+            style={styles.xpSection}
+            entering={FadeInUp.delay(300)}
+          >
+            <View style={styles.xpHeader}>
+              <Text style={styles.xpTitle}>Level {level} Progress</Text>
+              <Text style={styles.xpValue}>
+                {currentLevelXP}/{xpToNext} XP
+              </Text>
             </View>
-            <View
-              style={[
-                styles.achievementBadge,
-                unlockedSkills >= 2 && styles.achievementUnlocked,
-              ]}
+            <ProgressBar
+              progress={xpProgress}
+              height={8}
+              color={palette.accentPrimary}
+              backgroundColor={palette.surface}
+            />
+          </Animated.View>
+
+          {/* Next Skill Preview */}
+          {nextSkill && (
+            <Animated.View
+              style={styles.nextSkillCard}
+              entering={FadeInUp.delay(400)}
             >
-              <Text style={styles.achievementEmoji}>⚡</Text>
-              <Text style={styles.achievementText}>Growing Strong</Text>
+              <Text style={styles.nextSkillTitle}>🔮 Next Skill</Text>
+              <Text style={styles.nextSkillName}>{nextSkill.title}</Text>
+              <Text style={styles.nextSkillDesc}>{nextSkill.description}</Text>
+              <Text style={styles.nextSkillReq}>
+                Requires Level {nextSkill.requiredLevel}
+              </Text>
+            </Animated.View>
+          )}
+
+          {/* Skill Tree Section */}
+          <Animated.View
+            style={styles.skillTreeSection}
+            entering={FadeInUp.delay(500)}
+          >
+            <Text style={styles.sectionTitle}>🛡️ Skill Tree</Text>
+            <Text style={styles.sectionSubtitle}>
+              Master these abilities through consistent growth and dedication.
+            </Text>
+
+            <View style={styles.skillTreeContainer}>
+              {SKILL_TREE.map((skill, index) => (
+                <Animated.View
+                  key={skill.id}
+                  entering={FadeInUp.delay(600 + index * 150)}
+                  style={styles.skillWrapper}
+                >
+                  <SkillNode
+                    skill={skill}
+                    unlocked={level >= skill.requiredLevel}
+                    currentLevel={level}
+                    currentXP={xp}
+                  />
+                  {index < SKILL_TREE.length - 1 && (
+                    <View style={styles.skillConnector} />
+                  )}
+                </Animated.View>
+              ))}
             </View>
-            <View
-              style={[
-                styles.achievementBadge,
-                unlockedSkills >= 3 && styles.achievementUnlocked,
-              ]}
-            >
-              <Text style={styles.achievementEmoji}>🌟</Text>
-              <Text style={styles.achievementText}>Path Finder</Text>
+          </Animated.View>
+
+          {/* Achievement Showcase */}
+          <Animated.View
+            style={styles.achievementsSection}
+            entering={FadeInUp.delay(800)}
+          >
+            <Text style={styles.achievementTitle}>🏆 Milestones</Text>
+            <View style={styles.achievementGrid}>
+              <View
+                style={[
+                  styles.achievementBadge,
+                  unlockedSkills >= 1 && styles.achievementUnlocked,
+                ]}
+              >
+                <Text style={styles.achievementEmoji}>🎯</Text>
+                <Text style={styles.achievementText}>First Steps</Text>
+              </View>
+              <View
+                style={[
+                  styles.achievementBadge,
+                  unlockedSkills >= 2 && styles.achievementUnlocked,
+                ]}
+              >
+                <Text style={styles.achievementEmoji}>⚡</Text>
+                <Text style={styles.achievementText}>Growing Strong</Text>
+              </View>
+              <View
+                style={[
+                  styles.achievementBadge,
+                  unlockedSkills >= 3 && styles.achievementUnlocked,
+                ]}
+              >
+                <Text style={styles.achievementEmoji}>🌟</Text>
+                <Text style={styles.achievementText}>Path Finder</Text>
+              </View>
+              <View
+                style={[
+                  styles.achievementBadge,
+                  unlockedSkills >= 4 && styles.achievementUnlocked,
+                ]}
+              >
+                <Text style={styles.achievementEmoji}>👑</Text>
+                <Text style={styles.achievementText}>Master</Text>
+              </View>
             </View>
-            <View
-              style={[
-                styles.achievementBadge,
-                unlockedSkills >= 4 && styles.achievementUnlocked,
-              ]}
-            >
-              <Text style={styles.achievementEmoji}>👑</Text>
-              <Text style={styles.achievementText}>Master</Text>
-            </View>
-          </View>
-        </Animated.View>
-      </ScrollView>
-    </View>
+          </Animated.View>
+        </ScrollView>
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -286,6 +303,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: palette.accentSecondary,
     fontWeight: "600",
+  },
+
+  characterDescription: {
+    fontSize: 12,
+    color: "rgba(255, 255, 255, 0.8)",
+    fontStyle: "italic",
+    marginTop: spacing.xs,
+    lineHeight: 16,
+    textAlign: "center",
   },
 
   // Stats Overview
@@ -418,6 +444,10 @@ const styles = StyleSheet.create({
   // Skill Tree Section
   skillTreeSection: {
     marginBottom: spacing.xl,
+  },
+
+  skillTreeContainer: {
+    // Container for skill tree alignment
   },
 
   sectionTitle: {

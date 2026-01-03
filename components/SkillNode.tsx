@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
-import { palette, spacing, radius } from "../utils/ui";
+import { spacing, radius } from "../utils/ui";
+import { useTheme } from "../contexts/ThemeContext";
 import { ProgressBar } from "./ProgressBar";
 import { getXPToNextLevel, getCurrentLevelXP } from "../utils/xp";
 import Animated, { FadeIn } from "react-native-reanimated";
@@ -17,6 +18,7 @@ export const SkillNode = ({
   currentLevel,
   currentXP,
 }: SkillNodeProps) => {
+  const { palette } = useTheme(); // Use dynamic theme palette
   // Calculate progress towards this skill
   let progress = 0;
   let progressText = "";
@@ -110,7 +112,7 @@ const styles = StyleSheet.create({
 
   connector: {
     position: "absolute",
-    left: 18,
+    left: 20,
     top: 0,
     bottom: 0,
     width: 2,
@@ -125,7 +127,7 @@ const styles = StyleSheet.create({
   },
 
   node: {
-    marginLeft: 32,
+    marginLeft: 40,
     backgroundColor: palette.surfaceElevated,
     borderRadius: radius.lg,
     padding: spacing.lg,

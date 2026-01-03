@@ -8,6 +8,7 @@ interface CustomQuestState {
   addCustomQuest: (quest: Omit<Quest, 'id' | 'status'>) => void;
   removeCustomQuest: (id: string) => void;
   completeCustomQuest: (id: string) => void;
+  repeatCustomQuest: (id: string) => void;
   resetCustomQuests: () => void;
 }
 
@@ -38,6 +39,14 @@ export const useCustomQuestStore = create<CustomQuestState>()(
         set((state) => ({
           customQuests: state.customQuests.map((quest) =>
             quest.id === id ? { ...quest, status: 'completed' } : quest
+          ),
+        }));
+      },
+
+      repeatCustomQuest: (id) => {
+        set((state) => ({
+          customQuests: state.customQuests.map((quest) =>
+            quest.id === id ? { ...quest, status: 'active' } : quest
           ),
         }));
       },

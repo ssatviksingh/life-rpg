@@ -15,7 +15,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { isDark, toggleDarkMode, setThemeMode, mode } = useThemeStore();
+  const { toggleDarkMode, setThemeMode, mode } = useThemeStore();
   const [systemTheme, setSystemTheme] = useState(false);
 
   // Listen for system theme changes
@@ -34,7 +34,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [mode]);
 
-  const currentIsDark = mode === "system" ? systemTheme : isDark;
+  // Calculate current theme based on mode
+  const currentIsDark =
+    mode === "system" ? systemTheme : mode === "dark" ? true : false;
   const currentPalette = getPalette(currentIsDark);
 
   const value: ThemeContextType = {
@@ -43,6 +45,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
     toggleTheme: toggleDarkMode,
     setThemeMode,
   };
+
+  // Debug logging to verify theme changes
+  useEffect(() => {
+    console.log("Theme changed:", { mode, currentIsDark, systemTheme });
+  }, [mode, currentIsDark, systemTheme]);
 
   return (
     <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>

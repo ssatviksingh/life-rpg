@@ -18,23 +18,22 @@ export const useThemeStore = create<ThemeState>()(
       isDark: false,
 
       setThemeMode: (mode: ThemeMode) => {
-        const isDark = mode === 'dark' ||
-          (mode === 'system' && (typeof window !== 'undefined' ? window.matchMedia?.('(prefers-color-scheme: dark)').matches : false));
-
-        set({ mode, isDark });
+        // For React Native, we don't need to calculate isDark here
+        // The ThemeContext will handle the actual theme calculation
+        set({ mode });
       },
 
       toggleDarkMode: () => {
         const currentMode = get().mode;
         if (currentMode === 'system') {
           // If system, toggle to dark
-          set({ mode: 'dark', isDark: true });
+          set({ mode: 'dark' });
         } else if (currentMode === 'dark') {
           // If dark, toggle to light
-          set({ mode: 'light', isDark: false });
+          set({ mode: 'light' });
         } else {
           // If light, toggle to dark
-          set({ mode: 'dark', isDark: true });
+          set({ mode: 'dark' });
         }
       },
     }),
