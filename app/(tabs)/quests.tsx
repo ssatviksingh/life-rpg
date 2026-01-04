@@ -11,8 +11,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import { spacing, radius } from "../../utils/ui";
+import { spacing, radius, palette as defaultPalette } from "../../utils/ui";
 import { useTheme } from "../../contexts/ThemeContext";
+
+// Fallback palette for when theme is not available
+const FALLBACK_PALETTE = defaultPalette;
 import { useQuestStore } from "../../store/questStore";
 import { useStreakStore } from "../../store/streakStore";
 import { useCustomQuestStore } from "../../store/customQuestStore";
@@ -33,6 +36,9 @@ export default function QuestsScreen() {
     removeCustomQuest,
   } = useCustomQuestStore();
   const { palette } = useTheme(); // Use dynamic theme palette
+
+  // Fallback to default palette if theme is not available
+  const themePalette = palette || FALLBACK_PALETTE;
   const { addXP, adjustStamina } = usePlayerStore();
   const [isLoading, setIsLoading] = useState(true);
   const [showCustomQuestCreator, setShowCustomQuestCreator] = useState(false);
@@ -268,12 +274,12 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: palette.ink,
+    color: themePalette.ink,
     marginBottom: spacing.sm,
   },
   emptySubtext: {
     fontSize: 14,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
   },
 
   section: {
@@ -297,20 +303,20 @@ const styles = StyleSheet.create({
   },
 
   addButton: {
-    backgroundColor: palette.accentPrimary,
+    backgroundColor: themePalette.accentPrimary,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.md,
   },
 
   addButtonText: {
-    color: palette.inkStrong,
+    color: themePalette.inkStrong,
     fontSize: 14,
     fontWeight: "600",
   },
 
   customEmptyState: {
-    backgroundColor: palette.surfaceElevated,
+    backgroundColor: themePalette.surfaceElevated,
     borderRadius: radius.lg,
     padding: spacing.xl,
     alignItems: "center",
@@ -318,21 +324,21 @@ const styles = StyleSheet.create({
 
   customEmptyText: {
     fontSize: 16,
-    color: palette.ink,
+    color: themePalette.ink,
     fontWeight: "600",
     marginBottom: spacing.sm,
   },
 
   customEmptySubtext: {
     fontSize: 14,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
     textAlign: "center",
     lineHeight: 20,
   },
 
   modalContainer: {
     flex: 1,
-    backgroundColor: palette.appBg,
+    backgroundColor: themePalette.appBg,
   },
 
   modalBackground: {

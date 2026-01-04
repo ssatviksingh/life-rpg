@@ -1,6 +1,9 @@
 import { Text, StyleSheet, Pressable, View } from "react-native";
-import { spacing, radius } from "../utils/ui";
+import { spacing, radius, palette as defaultPalette } from "../utils/ui";
 import { useTheme } from "../contexts/ThemeContext";
+
+// Fallback palette for when theme is not available
+const FALLBACK_PALETTE = defaultPalette;
 import { Quest } from "../types/models";
 
 interface QuestCardProps {
@@ -17,12 +20,19 @@ export const QuestCard: React.FC<QuestCardProps> = ({
   onRepeat,
 }) => {
   const { palette } = useTheme(); // Use dynamic theme palette
+
+  // Fallback to default palette if theme is not available
+  const themePalette = palette || FALLBACK_PALETTE;
   const accent = quest.isChallenge ? "#FFD700" : "#6366f1"; // Gold for challenges
 
   return (
     <View
       style={[
         styles.card,
+        {
+          backgroundColor: themePalette.surfaceElevated,
+          shadowColor: themePalette.shadow,
+        },
         quest.isChallenge && styles.challengeCard,
         quest.status === "active" && { borderLeftColor: accent },
         quest.status === "completed" && styles.completed,
@@ -51,12 +61,34 @@ export const QuestCard: React.FC<QuestCardProps> = ({
       </View>
 
       {quest.isChallenge && quest.description && (
-        <Text style={styles.description}>{quest.description}</Text>
+        <Text style={[styles.description, { color: themePalette.ink }]}>
+          {quest.description}
+        </Text>
       )}
 
-      <View style={styles.metaRow}>
-        <Text style={styles.energyPill}>⚡ {quest.energyCost} Energy</Text>
-        <Text style={styles.xpReward}>⭐ +{quest.xpReward} XP</Text>
+      <View style={[styles.metaRow, { borderTopColor: themePalette.divider }]}>
+        <Text
+          style={[
+            styles.energyPill,
+            {
+              backgroundColor: themePalette.dividerLight,
+              color: themePalette.inkMuted,
+            },
+          ]}
+        >
+          ⚡ {quest.energyCost} Energy
+        </Text>
+        <Text
+          style={[
+            styles.xpReward,
+            {
+              backgroundColor: themePalette.dividerLight,
+              color: themePalette.accentSuccess,
+            },
+          ]}
+        >
+          ⭐ +{quest.xpReward} XP
+        </Text>
       </View>
 
       {quest.status === "active" ? (
@@ -65,7 +97,11 @@ export const QuestCard: React.FC<QuestCardProps> = ({
         </Pressable>
       ) : quest.status === "completed" ? (
         <View style={styles.completedActions}>
-          <Text style={styles.completedText}>✓ Progress acknowledged.</Text>
+          <Text
+            style={[styles.completedText, { color: themePalette.inkMuted }]}
+          >
+            ✓ Progress acknowledged.
+          </Text>
           {onRepeat && (
             <Pressable onPress={onRepeat} style={styles.repeatButton}>
               <Text style={[styles.repeatButtonText, { color: accent }]}>
@@ -75,7 +111,9 @@ export const QuestCard: React.FC<QuestCardProps> = ({
           )}
         </View>
       ) : (
-        <Text style={styles.skippedText}>Skipped</Text>
+        <Text style={[styles.skippedText, { color: themePalette.inkMuted }]}>
+          Skipped
+        </Text>
       )}
     </View>
   );
@@ -83,17 +121,15 @@ export const QuestCard: React.FC<QuestCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: palette.surfaceElevated,
     borderRadius: radius.lg,
-    padding: spacing.md,
+    padding: spacing.lg,
     marginBottom: spacing.md,
     borderLeftWidth: 4,
     borderLeftColor: "#6366f1",
-    shadowColor: palette.shadow,
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 4,
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 6,
   },
 
   header: {
@@ -115,13 +151,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 15,
     fontWeight: "600",
-    color: palette.ink,
     lineHeight: 20,
   },
 
   category: {
     fontSize: 11,
-    color: palette.inkMuted,
     textTransform: "capitalize",
     marginTop: 2,
   },
@@ -131,7 +165,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingTop: spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: palette.divider,
     marginTop: spacing.sm,
   },
 
@@ -151,7 +184,6 @@ const styles = StyleSheet.create({
 
   completedText: {
     fontSize: 13,
-    color: palette.inkMuted,
     marginTop: spacing.md,
   },
 
@@ -175,7 +207,6 @@ const styles = StyleSheet.create({
 
   skippedText: {
     fontSize: 13,
-    color: palette.inkMuted,
     marginTop: spacing.md,
   },
 
@@ -185,7 +216,6 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: "#E8ECFF",
     fontSize: 11,
-    color: palette.inkMuted,
   },
 
   xpReward: {
@@ -194,7 +224,6 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: "#E8F5E8",
     fontSize: 11,
-    color: palette.accentSecondary,
     fontWeight: "600",
   },
 
@@ -226,7 +255,6 @@ const styles = StyleSheet.create({
 
   description: {
     fontSize: 14,
-    color: palette.inkMuted,
     marginTop: spacing.sm,
     lineHeight: 20,
   },

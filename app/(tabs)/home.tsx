@@ -2,7 +2,16 @@ import { useEffect } from "react";
 import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import Animated, { FadeInUp, SlideInRight } from "react-native-reanimated";
+import Animated, {
+  FadeInUp,
+  SlideInRight,
+  ZoomIn,
+  BounceIn,
+  Easing,
+  withSpring,
+  withTiming,
+  runOnJS,
+} from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { spacing, radius } from "../../utils/ui";
@@ -15,6 +24,9 @@ import { useCompanionStore } from "../../store/companionStore";
 import { useAchievementStore } from "../../store/achievementStore";
 import { useTheme } from "../../contexts/ThemeContext";
 import { palette as defaultPalette } from "../../utils/ui";
+
+// Fallback palette for when theme is not available
+const FALLBACK_PALETTE = defaultPalette;
 import { CompanionOrb } from "../../components/CompanionOrb";
 import { ProgressBar } from "../../components/ProgressBar";
 import { AchievementBadge } from "../../components/AchievementBadge";
@@ -23,6 +35,9 @@ import { getXPToNextLevel, getCurrentLevelXP } from "../../utils/xp";
 export default function HomeScreen() {
   const router = useRouter();
   const { palette } = useTheme(); // Use dynamic theme palette
+
+  // Fallback to default palette if theme is not available
+  const themePalette = palette || FALLBACK_PALETTE;
   const { stamina, level, xp, restDay, naturalRecovery, takeRestDay } =
     usePlayerStore();
   const quests = useQuestStore((s) => s.quests);
@@ -70,7 +85,12 @@ export default function HomeScreen() {
           {/* HERO SECTION */}
           <Animated.View
             style={[styles.hero, { borderLeftColor: accent }]}
-            entering={FadeInUp.delay(200)}
+            entering={FadeInUp.delay(200)
+              .duration(800)
+              .easing(Easing.out(Easing.exp))
+              .springify()
+              .damping(12)
+              .stiffness(100)}
           >
             {/* Top Row: Companion and Stats */}
             <Animated.View
@@ -100,7 +120,7 @@ export default function HomeScreen() {
                 progress={affection / 100}
                 height={6}
                 color="#10B981"
-                backgroundColor={palette.surface}
+                backgroundColor={themePalette.surface}
               />
               {staminaBonus > 0 && (
                 <Text style={styles.affectionBonus}>
@@ -121,7 +141,7 @@ export default function HomeScreen() {
                 progress={xpProgress}
                 height={8}
                 color={accent}
-                backgroundColor={palette.surface}
+                backgroundColor={themePalette.surface}
               />
             </View>
 
@@ -309,13 +329,13 @@ const styles = StyleSheet.create({
   },
 
   hero: {
-    backgroundColor: palette.surfaceElevated,
+    backgroundColor: themePalette.surfaceElevated,
     borderRadius: radius.xl,
     padding: spacing.xl,
     marginBottom: spacing.lg,
     borderLeftWidth: 4,
-    borderLeftColor: palette.accentPrimary,
-    shadowColor: palette.shadow,
+    borderLeftColor: themePalette.accentPrimary,
+    shadowColor: themePalette.shadow,
     shadowOpacity: 0.3,
     shadowRadius: 20,
     shadowOffset: { width: 0, height: 8 },
@@ -335,13 +355,13 @@ const styles = StyleSheet.create({
 
   statLabel: {
     fontSize: 12,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
   },
 
   statValue: {
     fontSize: 20,
     fontWeight: "700",
-    color: palette.inkStrong,
+    color: themePalette.inkStrong,
   },
 
   ring: {
@@ -357,12 +377,12 @@ const styles = StyleSheet.create({
   ringValue: {
     fontSize: 36,
     fontWeight: "700",
-    color: palette.inkStrong,
+    color: themePalette.inkStrong,
   },
 
   ringLabel: {
     fontSize: 12,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
     marginTop: 4,
   },
 
@@ -388,12 +408,12 @@ const styles = StyleSheet.create({
 
   affectionLabel: {
     fontSize: 12,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
   },
 
   affectionValue: {
     fontSize: 12,
-    color: palette.ink,
+    color: themePalette.ink,
     fontWeight: "600",
   },
 
@@ -418,12 +438,12 @@ const styles = StyleSheet.create({
 
   xpLabel: {
     fontSize: 12,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
   },
 
   xpValue: {
     fontSize: 12,
-    color: palette.ink,
+    color: themePalette.ink,
     fontWeight: "600",
   },
 
@@ -435,7 +455,7 @@ const styles = StyleSheet.create({
 
   companion: {
     fontSize: 14,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
     marginTop: spacing.xs,
     maxWidth: "85%",
   },
@@ -446,7 +466,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     borderWidth: 1,
     borderRadius: radius.lg,
-    backgroundColor: palette.surface,
+    backgroundColor: themePalette.surface,
   },
 
   restButtonText: {
@@ -456,34 +476,34 @@ const styles = StyleSheet.create({
   },
 
   panel: {
-    backgroundColor: palette.surfaceElevated,
+    backgroundColor: themePalette.surfaceElevated,
     borderRadius: radius.lg,
     padding: spacing.lg,
     marginBottom: spacing.md,
-    shadowColor: palette.shadow,
+    shadowColor: themePalette.shadow,
     shadowOpacity: 0.15,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
     borderWidth: 1,
-    borderColor: palette.dividerLight,
+    borderColor: themePalette.dividerLight,
   },
 
   panelTitle: {
     fontSize: 14,
     fontWeight: "600",
-    color: palette.ink,
+    color: themePalette.ink,
   },
 
   panelBody: {
     fontSize: 13,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
     marginTop: spacing.xs,
   },
 
   panelMeta: {
     fontSize: 12,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
     marginTop: spacing.sm,
   },
 

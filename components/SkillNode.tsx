@@ -1,6 +1,9 @@
 import { View, Text, StyleSheet } from "react-native";
-import { spacing, radius } from "../utils/ui";
+import { spacing, radius, palette as defaultPalette } from "../utils/ui";
 import { useTheme } from "../contexts/ThemeContext";
+
+// Fallback palette for when theme is not available
+const FALLBACK_PALETTE = defaultPalette;
 import { ProgressBar } from "./ProgressBar";
 import { getXPToNextLevel, getCurrentLevelXP } from "../utils/xp";
 import Animated, { FadeIn } from "react-native-reanimated";
@@ -19,6 +22,9 @@ export const SkillNode = ({
   currentXP,
 }: SkillNodeProps) => {
   const { palette } = useTheme(); // Use dynamic theme palette
+
+  // Fallback to default palette if theme is not available
+  const themePalette = palette || FALLBACK_PALETTE;
   // Calculate progress towards this skill
   let progress = 0;
   let progressText = "";
@@ -48,15 +54,45 @@ export const SkillNode = ({
 
   return (
     <View style={styles.wrapper}>
-      <View style={[styles.connector, unlocked && styles.connectorUnlocked]} />
+      <View
+        style={[
+          styles.connector,
+          unlocked && {
+            backgroundColor: themePalette.accentSecondary,
+            shadowColor: themePalette.accentSecondary,
+            shadowOpacity: 0.5,
+            shadowRadius: 4,
+          },
+        ]}
+      />
 
       <Animated.View
-        style={[styles.node, unlocked ? styles.unlocked : styles.locked]}
+        style={[
+          styles.node,
+          {
+            backgroundColor: themePalette.surfaceElevated,
+            borderLeftColor: unlocked
+              ? themePalette.accentSecondary
+              : themePalette.divider,
+            shadowColor: unlocked
+              ? themePalette.accentSecondary
+              : themePalette.shadow,
+            borderColor: themePalette.dividerLight,
+          },
+          unlocked ? styles.unlocked : styles.locked,
+        ]}
         entering={FadeIn.delay(unlocked ? 200 : 0)}
       >
         <View style={styles.nodeHeader}>
           <View
-            style={[styles.skillIcon, unlocked && styles.skillIconUnlocked]}
+            style={[
+              styles.skillIcon,
+              {
+                backgroundColor: unlocked
+                  ? themePalette.accentSecondary
+                  : themePalette.divider,
+              },
+            ]}
           >
             <Text style={styles.skillEmoji}>{unlocked ? "✨" : "🔒"}</Text>
           </View>
@@ -85,8 +121,12 @@ export const SkillNode = ({
             <ProgressBar
               progress={progress}
               height={6}
-              color={progress > 0 ? palette.accentSecondary : palette.divider}
-              backgroundColor={palette.divider}
+              color={
+                progress > 0
+                  ? themePalette.accentSecondary
+                  : themePalette.divider
+              }
+              backgroundColor={themePalette.divider}
             />
             <Text style={styles.progressText}>{progressText}</Text>
           </View>
@@ -116,33 +156,21 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 2,
-    backgroundColor: palette.divider,
-  },
-
-  connectorUnlocked: {
-    backgroundColor: palette.accentSecondary,
-    shadowColor: palette.accentSecondary,
-    shadowOpacity: 0.5,
-    shadowRadius: 4,
   },
 
   node: {
     marginLeft: 40,
-    backgroundColor: palette.surfaceElevated,
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
     padding: spacing.lg,
     borderLeftWidth: 4,
-    borderLeftColor: palette.divider,
-    shadowColor: palette.shadow,
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
+    shadowOpacity: 0.18,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
+    borderWidth: 1,
   },
 
   unlocked: {
-    borderLeftColor: palette.accentSecondary,
-    shadowColor: palette.accentSecondary,
     shadowOpacity: 0.3,
     shadowRadius: 16,
     elevation: 6,
@@ -162,14 +190,9 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: palette.divider,
     alignItems: "center",
     justifyContent: "center",
     marginRight: spacing.sm,
-  },
-
-  skillIconUnlocked: {
-    backgroundColor: palette.accentSecondary,
   },
 
   skillEmoji: {
@@ -186,38 +209,38 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: "700",
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
     flex: 1,
   },
 
   titleUnlocked: {
-    color: palette.ink,
+    color: themePalette.ink,
   },
 
   levelBadge: {
     fontSize: 12,
-    color: palette.divider,
+    color: themePalette.divider,
     fontWeight: "600",
-    backgroundColor: palette.surface,
+    backgroundColor: themePalette.surface,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs / 2,
     borderRadius: radius.sm,
   },
 
   levelBadgeUnlocked: {
-    color: palette.accentSecondary,
-    backgroundColor: `${palette.accentSecondary}15`,
+    color: themePalette.accentSecondary,
+    backgroundColor: `${themePalette.accentSecondary}15`,
   },
 
   desc: {
     fontSize: 14,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
     lineHeight: 20,
     marginBottom: spacing.sm,
   },
 
   bonusContainer: {
-    backgroundColor: `${palette.accentTertiary}15`,
+    backgroundColor: `${themePalette.accentTertiary}15`,
     borderRadius: radius.sm,
     padding: spacing.sm,
     marginBottom: spacing.sm,
@@ -225,7 +248,7 @@ const styles = StyleSheet.create({
 
   bonusText: {
     fontSize: 13,
-    color: palette.accentTertiary,
+    color: themePalette.accentTertiary,
     fontWeight: "600",
     textAlign: "center",
   },
@@ -236,7 +259,7 @@ const styles = StyleSheet.create({
 
   progressText: {
     fontSize: 12,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
     marginTop: spacing.xs,
     textAlign: "center",
     fontWeight: "500",
@@ -248,11 +271,11 @@ const styles = StyleSheet.create({
 
   statusText: {
     fontSize: 12,
-    color: palette.divider,
+    color: themePalette.divider,
     fontWeight: "600",
   },
 
   statusTextUnlocked: {
-    color: palette.accentSecondary,
+    color: themePalette.accentSecondary,
   },
 });

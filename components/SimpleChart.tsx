@@ -1,6 +1,10 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { palette, spacing, radius } from "../utils/ui";
+import { spacing, radius, palette as defaultPalette } from "../utils/ui";
+import { useTheme } from "../contexts/ThemeContext";
+
+// Fallback palette for when theme is not available
+const FALLBACK_PALETTE = defaultPalette;
 
 interface DataPoint {
   label: string;
@@ -21,6 +25,10 @@ export const SimpleChart: React.FC<SimpleChartProps> = ({
   maxValue,
   height = 200,
 }) => {
+  const { palette } = useTheme(); // Use dynamic theme palette
+
+  // Fallback to default palette if theme is not available
+  const themePalette = palette || FALLBACK_PALETTE;
   const chartMax = maxValue || Math.max(...data.map((d) => d.value));
 
   return (
@@ -30,7 +38,7 @@ export const SimpleChart: React.FC<SimpleChartProps> = ({
       <View style={[styles.chartContainer, { height }]}>
         {data.map((point, index) => {
           const barHeight = (point.value / chartMax) * (height - 60); // Leave space for labels
-          const color = point.color || palette.accentPrimary;
+          const color = point.color || themePalette.accentPrimary;
 
           return (
             <View key={index} style={styles.barContainer}>
@@ -60,7 +68,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: "600",
-    color: palette.ink,
+    color: themePalette.ink,
     marginBottom: spacing.md,
     textAlign: "center",
   },
@@ -70,9 +78,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.md,
-    backgroundColor: palette.surfaceElevated,
+    backgroundColor: themePalette.surfaceElevated,
     borderRadius: radius.lg,
-    shadowColor: palette.shadow,
+    shadowColor: themePalette.shadow,
     shadowOpacity: 0.15,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
@@ -90,13 +98,13 @@ const styles = StyleSheet.create({
   },
   barLabel: {
     fontSize: 12,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
     marginTop: spacing.xs,
     textAlign: "center",
   },
   barValue: {
     fontSize: 10,
-    color: palette.ink,
+    color: themePalette.ink,
     fontWeight: "600",
     marginTop: 2,
   },

@@ -2,7 +2,10 @@ import { ScrollView, Text, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInUp } from "react-native-reanimated";
-import { spacing } from "../../utils/ui";
+import { spacing, palette as defaultPalette } from "../../utils/ui";
+
+// Fallback palette for when theme is not available
+const FALLBACK_PALETTE = defaultPalette;
 import { usePlayerStore } from "../../store/playerStore";
 import { useQuestStore } from "../../store/questStore";
 import { useStreakStore } from "../../store/streakStore";
@@ -17,6 +20,9 @@ import { getXPToNextLevel, getCurrentLevelXP } from "../../utils/xp";
 
 export default function InsightsScreen() {
   const { palette } = useTheme(); // Use dynamic theme palette
+
+  // Fallback to default palette if theme is not available
+  const themePalette = palette || FALLBACK_PALETTE;
   const { level, xp, stamina } = usePlayerStore();
   const { quests } = useQuestStore();
   const { current: streak } = useStreakStore();
@@ -47,7 +53,7 @@ export default function InsightsScreen() {
     ([category, stats]) => ({
       label: category.charAt(0).toUpperCase() + category.slice(1),
       value: stats.completed,
-      color: category === "special" ? "#FFD700" : palette.accentPrimary,
+      color: category === "special" ? "#FFD700" : themePalette.accentPrimary,
     })
   );
 
@@ -184,8 +190,8 @@ export default function InsightsScreen() {
                   <ProgressBar
                     progress={xpProgress}
                     height={10}
-                    color={palette.accentPrimary}
-                    backgroundColor={palette.surface}
+                    color={themePalette.accentPrimary}
+                    backgroundColor={themePalette.surface}
                   />
                 </View>
 
@@ -358,12 +364,12 @@ const styles = StyleSheet.create({
   },
 
   statCard: {
-    backgroundColor: palette.surfaceElevated,
+    backgroundColor: themePalette.surfaceElevated,
     borderRadius: spacing.md,
     padding: spacing.md,
     alignItems: "center",
     minWidth: 80,
-    shadowColor: palette.shadow,
+    shadowColor: themePalette.shadow,
     shadowOpacity: 0.5,
     shadowRadius: 8,
   },
@@ -371,21 +377,21 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: "700",
-    color: palette.inkStrong,
+    color: themePalette.inkStrong,
   },
 
   statLabel: {
     fontSize: 12,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
     marginTop: spacing.xs,
   },
 
   progressSection: {
-    backgroundColor: palette.surfaceElevated,
+    backgroundColor: themePalette.surfaceElevated,
     borderRadius: spacing.lg,
     padding: spacing.md,
     marginBottom: spacing.lg,
-    shadowColor: palette.shadow,
+    shadowColor: themePalette.shadow,
     shadowOpacity: 0.5,
     shadowRadius: 8,
   },
@@ -400,12 +406,12 @@ const styles = StyleSheet.create({
   progressTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: palette.ink,
+    color: themePalette.ink,
   },
 
   progressValue: {
     fontSize: 14,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
   },
 
   section: {
@@ -420,14 +426,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: palette.inkStrong,
+    color: themePalette.inkStrong,
     marginBottom: spacing.md,
   },
 
   companionStats: {
     flexDirection: "row",
     justifyContent: "space-around",
-    backgroundColor: palette.surface,
+    backgroundColor: themePalette.surface,
     borderRadius: spacing.md,
     padding: spacing.md,
   },
@@ -440,12 +446,12 @@ const styles = StyleSheet.create({
   companionStatValue: {
     fontSize: 20,
     fontWeight: "700",
-    color: palette.accentPrimary,
+    color: themePalette.accentPrimary,
   },
 
   companionStatLabel: {
     fontSize: 12,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
     marginTop: spacing.xs,
     textAlign: "center",
   },

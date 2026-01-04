@@ -2,8 +2,11 @@ import { ScrollView, Text, StyleSheet, View, Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInUp } from "react-native-reanimated";
-import { spacing, radius } from "../../utils/ui";
+import { spacing, radius, palette as defaultPalette } from "../../utils/ui";
 import { useTheme } from "../../contexts/ThemeContext";
+
+// Fallback palette for when theme is not available
+const FALLBACK_PALETTE = defaultPalette;
 import { usePlayerStore } from "../../store/playerStore";
 import { SKILL_TREE } from "../../data/skillTree";
 import { getCharacterProfile } from "../../data/characterTitles";
@@ -13,6 +16,9 @@ import { getXPToNextLevel, getCurrentLevelXP } from "../../utils/xp";
 
 export default function CharacterScreen() {
   const { palette } = useTheme(); // Use dynamic theme palette
+
+  // Fallback to default palette if theme is not available
+  const themePalette = palette || FALLBACK_PALETTE;
   const { level, xp } = usePlayerStore();
 
   // Get character profile based on level
@@ -77,8 +83,8 @@ export default function CharacterScreen() {
               <ProgressBar
                 progress={skillProgress}
                 height={4}
-                color={palette.accentSecondary}
-                backgroundColor={palette.divider}
+                color={themePalette.accentSecondary}
+                backgroundColor={themePalette.divider}
               />
             </View>
 
@@ -120,8 +126,8 @@ export default function CharacterScreen() {
             <ProgressBar
               progress={xpProgress}
               height={8}
-              color={palette.accentPrimary}
-              backgroundColor={palette.surface}
+              color={themePalette.accentPrimary}
+              backgroundColor={themePalette.surface}
             />
           </Animated.View>
 
@@ -248,11 +254,11 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: palette.surfaceElevated,
+    backgroundColor: themePalette.surfaceElevated,
     borderRadius: radius.xl,
     padding: spacing.lg,
     marginBottom: spacing.lg,
-    shadowColor: palette.shadow,
+    shadowColor: themePalette.shadow,
     shadowOpacity: 0.3,
     shadowRadius: 20,
     shadowOffset: { width: 0, height: 8 },
@@ -272,18 +278,18 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -5,
     right: -5,
-    backgroundColor: palette.accentPrimary,
+    backgroundColor: themePalette.accentPrimary,
     borderRadius: 12,
     width: 24,
     height: 24,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
-    borderColor: palette.surface,
+    borderColor: themePalette.surface,
   },
 
   levelText: {
-    color: palette.inkStrong,
+    color: themePalette.inkStrong,
     fontSize: 12,
     fontWeight: "700",
   },
@@ -295,13 +301,13 @@ const styles = StyleSheet.create({
   characterName: {
     fontSize: 20,
     fontWeight: "700",
-    color: palette.ink,
+    color: themePalette.ink,
     marginBottom: spacing.xs,
   },
 
   characterTitle: {
     fontSize: 14,
-    color: palette.accentSecondary,
+    color: themePalette.accentSecondary,
     fontWeight: "600",
   },
 
@@ -324,11 +330,11 @@ const styles = StyleSheet.create({
 
   statCard: {
     flex: 1,
-    backgroundColor: palette.surfaceElevated,
+    backgroundColor: themePalette.surfaceElevated,
     borderRadius: radius.lg,
     padding: spacing.md,
     alignItems: "center",
-    shadowColor: palette.shadow,
+    shadowColor: themePalette.shadow,
     shadowOpacity: 0.15,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
@@ -338,43 +344,43 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: "700",
-    color: palette.accentPrimary,
+    color: themePalette.accentPrimary,
     marginBottom: spacing.xs,
   },
 
   statLabel: {
     fontSize: 12,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
     textAlign: "center",
     marginBottom: spacing.sm,
   },
 
   xpText: {
     fontSize: 10,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
   },
 
   masteryIndicator: {
     width: "100%",
     height: 4,
-    backgroundColor: palette.divider,
+    backgroundColor: themePalette.divider,
     borderRadius: 2,
     overflow: "hidden",
   },
 
   masteryBar: {
     height: "100%",
-    backgroundColor: palette.accentTertiary,
+    backgroundColor: themePalette.accentTertiary,
     borderRadius: 2,
   },
 
   // XP Section
   xpSection: {
-    backgroundColor: palette.surfaceElevated,
+    backgroundColor: themePalette.surfaceElevated,
     borderRadius: radius.lg,
     padding: spacing.lg,
     marginBottom: spacing.lg,
-    shadowColor: palette.shadow,
+    shadowColor: themePalette.shadow,
     shadowOpacity: 0.15,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
@@ -391,23 +397,23 @@ const styles = StyleSheet.create({
   xpTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: palette.ink,
+    color: themePalette.ink,
   },
 
   xpValue: {
     fontSize: 14,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
   },
 
   // Next Skill Preview
   nextSkillCard: {
-    backgroundColor: palette.surfaceElevated,
+    backgroundColor: themePalette.surfaceElevated,
     borderRadius: radius.lg,
     padding: spacing.lg,
     marginBottom: spacing.lg,
     borderLeftWidth: 4,
-    borderLeftColor: palette.accentTertiary,
-    shadowColor: palette.shadow,
+    borderLeftColor: themePalette.accentTertiary,
+    shadowColor: themePalette.shadow,
     shadowOpacity: 0.15,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
@@ -417,27 +423,27 @@ const styles = StyleSheet.create({
   nextSkillTitle: {
     fontSize: 14,
     fontWeight: "600",
-    color: palette.accentTertiary,
+    color: themePalette.accentTertiary,
     marginBottom: spacing.sm,
   },
 
   nextSkillName: {
     fontSize: 18,
     fontWeight: "700",
-    color: palette.ink,
+    color: themePalette.ink,
     marginBottom: spacing.xs,
   },
 
   nextSkillDesc: {
     fontSize: 14,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
     lineHeight: 20,
     marginBottom: spacing.sm,
   },
 
   nextSkillReq: {
     fontSize: 12,
-    color: palette.accentSecondary,
+    color: themePalette.accentSecondary,
     fontWeight: "600",
   },
 
@@ -483,7 +489,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: -spacing.xl,
     width: 2,
-    backgroundColor: palette.dividerLight,
+    backgroundColor: themePalette.dividerLight,
     zIndex: -1,
   },
 
@@ -513,12 +519,12 @@ const styles = StyleSheet.create({
   achievementBadge: {
     flex: 1,
     minWidth: 70,
-    backgroundColor: palette.surfaceElevated,
+    backgroundColor: themePalette.surfaceElevated,
     borderRadius: radius.lg,
     padding: spacing.md,
     alignItems: "center",
     opacity: 0.5,
-    shadowColor: palette.shadow,
+    shadowColor: themePalette.shadow,
     shadowOpacity: 0.15,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
@@ -528,7 +534,7 @@ const styles = StyleSheet.create({
   achievementUnlocked: {
     opacity: 1,
     borderWidth: 2,
-    borderColor: palette.accentSecondary,
+    borderColor: themePalette.accentSecondary,
   },
 
   achievementEmoji: {
@@ -538,7 +544,7 @@ const styles = StyleSheet.create({
 
   achievementText: {
     fontSize: 12,
-    color: palette.ink,
+    color: themePalette.ink,
     textAlign: "center",
     fontWeight: "600",
   },

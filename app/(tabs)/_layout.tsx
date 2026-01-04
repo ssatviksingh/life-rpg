@@ -73,18 +73,27 @@ export default function TabLayout() {
           },
           tabBarBackground: () => (
             <LinearGradient
-              colors={["rgba(103, 126, 234, 0.95)", "rgba(118, 75, 162, 0.95)"]}
+              colors={[
+                "rgba(103, 126, 234, 0.98)",
+                "rgba(118, 75, 162, 0.96)",
+                "rgba(139, 92, 246, 0.94)",
+              ]}
               style={{
                 position: "absolute",
                 bottom: 0,
                 left: 0,
                 right: 0,
                 top: 0,
-                borderTopLeftRadius: 20,
-                borderTopRightRadius: 20,
+                borderTopLeftRadius: 24,
+                borderTopRightRadius: 24,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: -4 },
+                shadowOpacity: 0.25,
+                shadowRadius: 16,
+                elevation: 20,
               }}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
+              start={{ x: 0, y: 0.3 }}
+              end={{ x: 1, y: 0.7 }}
             />
           ),
           tabBarActiveBackgroundColor: "rgba(255, 255, 255, 0.05)",
@@ -223,16 +232,21 @@ const styles = StyleSheet.create({
   },
   badge: {
     position: "absolute",
-    top: -8,
-    right: -8,
+    top: -6,
+    right: -6,
     backgroundColor: "#EF4444",
-    borderRadius: 8,
-    minWidth: 16,
-    height: 16,
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
     borderColor: "rgba(103, 126, 234, 0.95)",
+    shadowColor: "#EF4444",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    elevation: 6,
   },
   badgeText: {
     color: "white",
@@ -242,16 +256,21 @@ const styles = StyleSheet.create({
   },
   levelBadge: {
     position: "absolute",
-    top: -6,
-    right: -6,
+    top: -4,
+    right: -4,
     backgroundColor: palette.accentSecondary,
-    borderRadius: 6,
-    minWidth: 12,
-    height: 12,
+    borderRadius: 8,
+    minWidth: 16,
+    height: 16,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: "rgba(103, 126, 234, 0.95)",
+    shadowColor: palette.accentSecondary,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.4,
+    shadowRadius: 3,
+    elevation: 4,
   },
   levelBadgeText: {
     color: "white",

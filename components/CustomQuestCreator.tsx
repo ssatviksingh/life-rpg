@@ -10,7 +10,11 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { palette, spacing, radius } from "../utils/ui";
+import { spacing, radius, palette as defaultPalette } from "../utils/ui";
+import { useTheme } from "../contexts/ThemeContext";
+
+// Fallback palette for when theme is not available
+const FALLBACK_PALETTE = defaultPalette;
 import { useCustomQuestStore } from "../store/customQuestStore";
 import { QuestCategory } from "../types/models";
 
@@ -30,6 +34,11 @@ const CATEGORIES: { value: QuestCategory; label: string; icon: string }[] = [
 export const CustomQuestCreator: React.FC<CustomQuestCreatorProps> = ({
   onClose,
 }) => {
+  const { palette } = useTheme(); // Use dynamic theme palette
+
+  // Fallback to default palette if theme is not available
+  const themePalette = palette || FALLBACK_PALETTE;
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<QuestCategory>("health");
@@ -97,7 +106,7 @@ export const CustomQuestCreator: React.FC<CustomQuestCreatorProps> = ({
             value={title}
             onChangeText={setTitle}
             placeholder="Enter quest title..."
-            placeholderTextColor={palette.inkMuted}
+            placeholderTextColor={themePalette.inkMuted}
             maxLength={50}
           />
         </View>
@@ -110,7 +119,7 @@ export const CustomQuestCreator: React.FC<CustomQuestCreatorProps> = ({
             value={description}
             onChangeText={setDescription}
             placeholder="Describe what needs to be done..."
-            placeholderTextColor={palette.inkMuted}
+            placeholderTextColor={themePalette.inkMuted}
             multiline
             numberOfLines={3}
             maxLength={200}
@@ -228,7 +237,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "700",
-    color: palette.ink,
+    color: themePalette.ink,
     textAlign: "center",
     marginBottom: spacing.xl,
   },
@@ -238,17 +247,17 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: "600",
-    color: palette.ink,
+    color: themePalette.ink,
     marginBottom: spacing.sm,
   },
   textInput: {
     borderWidth: 1,
-    borderColor: palette.divider,
+    borderColor: themePalette.divider,
     borderRadius: radius.md,
     padding: spacing.md,
     fontSize: 16,
-    color: palette.ink,
-    backgroundColor: palette.surface,
+    color: themePalette.ink,
+    backgroundColor: themePalette.surface,
   },
   descriptionInput: {
     height: 80,
@@ -256,12 +265,12 @@ const styles = StyleSheet.create({
   },
   numberInput: {
     borderWidth: 1,
-    borderColor: palette.divider,
+    borderColor: themePalette.divider,
     borderRadius: radius.md,
     padding: spacing.md,
     fontSize: 16,
-    color: palette.ink,
-    backgroundColor: palette.surface,
+    color: themePalette.ink,
+    backgroundColor: themePalette.surface,
     width: 100,
   },
   categoryGrid: {
@@ -275,15 +284,15 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: palette.divider,
-    backgroundColor: palette.surface,
+    borderColor: themePalette.divider,
+    backgroundColor: themePalette.surface,
     alignItems: "center",
     gap: spacing.xs,
   },
   categoryButtonSelected: {
-    borderColor: palette.accentSecondary,
-    backgroundColor: `${palette.accentSecondary}20`,
-    shadowColor: palette.accentSecondary,
+    borderColor: themePalette.accentSecondary,
+    backgroundColor: `${themePalette.accentSecondary}20`,
+    shadowColor: themePalette.accentSecondary,
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
@@ -293,11 +302,11 @@ const styles = StyleSheet.create({
   },
   categoryLabel: {
     fontSize: 12,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
     textAlign: "center",
   },
   categoryLabelSelected: {
-    color: palette.accentSecondary,
+    color: themePalette.accentSecondary,
     fontWeight: "600",
   },
   difficultyContainer: {
@@ -309,14 +318,14 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: palette.divider,
-    backgroundColor: palette.surface,
+    borderColor: themePalette.divider,
+    backgroundColor: themePalette.surface,
     alignItems: "center",
   },
   difficultyButtonSelected: {
-    borderColor: palette.accentSecondary,
-    backgroundColor: `${palette.accentSecondary}20`,
-    shadowColor: palette.accentSecondary,
+    borderColor: themePalette.accentSecondary,
+    backgroundColor: `${themePalette.accentSecondary}20`,
+    shadowColor: themePalette.accentSecondary,
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
@@ -324,44 +333,44 @@ const styles = StyleSheet.create({
   difficultyText: {
     fontSize: 16,
     fontWeight: "600",
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
   },
   difficultyTextSelected: {
-    color: palette.accentSecondary,
+    color: themePalette.accentSecondary,
   },
   buttonContainer: {
     flexDirection: "row",
     gap: spacing.md,
     padding: spacing.lg,
     paddingBottom: Platform.OS === "ios" ? spacing.xl : spacing.lg,
-    backgroundColor: palette.surface,
+    backgroundColor: themePalette.surface,
     borderTopWidth: 1,
-    borderTopColor: palette.dividerLight,
+    borderTopColor: themePalette.dividerLight,
   },
   cancelButton: {
     flex: 1,
     padding: spacing.md,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: palette.divider,
-    backgroundColor: palette.surface,
+    borderColor: themePalette.divider,
+    backgroundColor: themePalette.surface,
     alignItems: "center",
   },
   cancelButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
   },
   createButton: {
     flex: 1,
     padding: spacing.md,
     borderRadius: radius.md,
-    backgroundColor: palette.accentPrimary,
+    backgroundColor: themePalette.accentPrimary,
     alignItems: "center",
   },
   createButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: palette.inkStrong,
+    color: themePalette.inkStrong,
   },
 });

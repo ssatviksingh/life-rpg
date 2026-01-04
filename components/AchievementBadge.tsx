@@ -1,7 +1,10 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { spacing, radius } from "../utils/ui";
+import { spacing, radius, palette as defaultPalette } from "../utils/ui";
 import { useTheme } from "../contexts/ThemeContext";
+
+// Fallback palette for when theme is not available
+const FALLBACK_PALETTE = defaultPalette;
 
 interface AchievementBadgeProps {
   achievement: {
@@ -21,6 +24,9 @@ export const AchievementBadge: React.FC<AchievementBadgeProps> = ({
   showProgress = false,
 }) => {
   const { palette } = useTheme(); // Use dynamic theme palette
+
+  // Fallback to default palette if theme is not available
+  const themePalette = palette || FALLBACK_PALETTE;
   const progressPercent =
     (achievement.progress / achievement.maxProgress) * 100;
 
@@ -75,27 +81,29 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: palette.surfaceElevated,
-    borderRadius: radius.lg,
-    padding: spacing.md,
+    backgroundColor: themePalette.surfaceElevated,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
     marginBottom: spacing.sm,
-    shadowColor: palette.shadow,
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
+    shadowColor: themePalette.shadow,
+    shadowOpacity: 0.18,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: themePalette.dividerLight,
   },
 
   locked: {
     opacity: 0.7,
-    backgroundColor: palette.surface,
+    backgroundColor: themePalette.surface,
   },
 
   iconContainer: {
     width: 50,
     height: 50,
     borderRadius: radius.md,
-    backgroundColor: palette.dividerLight,
+    backgroundColor: themePalette.dividerLight,
     alignItems: "center",
     justifyContent: "center",
     marginRight: spacing.md,
@@ -103,8 +111,8 @@ const styles = StyleSheet.create({
   },
 
   unlockedIcon: {
-    backgroundColor: palette.gradientPrimary,
-    shadowColor: palette.accentPrimary,
+    backgroundColor: themePalette.gradientPrimary,
+    shadowColor: themePalette.accentPrimary,
     shadowOpacity: 0.3,
     shadowRadius: 8,
   },
@@ -138,23 +146,23 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: "600",
-    color: palette.inkStrong,
+    color: themePalette.inkStrong,
     marginBottom: 2,
   },
 
   description: {
     fontSize: 13,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
     lineHeight: 18,
   },
 
   lockedText: {
-    color: palette.inkLight,
+    color: themePalette.inkLight,
   },
 
   progressBar: {
     height: 4,
-    backgroundColor: palette.divider,
+    backgroundColor: themePalette.divider,
     borderRadius: 2,
     marginTop: spacing.sm,
     overflow: "hidden",
@@ -162,7 +170,7 @@ const styles = StyleSheet.create({
 
   progressFill: {
     height: "100%",
-    backgroundColor: palette.accentPrimary,
+    backgroundColor: themePalette.accentPrimary,
     borderRadius: 2,
   },
 });

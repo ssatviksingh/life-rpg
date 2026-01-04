@@ -11,15 +11,17 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInUp } from "react-native-reanimated";
-import { spacing, radius } from "../../utils/ui";
+import { spacing, radius, palette as defaultPalette } from "../../utils/ui";
 import { useTheme } from "../../contexts/ThemeContext";
+
+// Fallback palette for when theme is not available
+const FALLBACK_PALETTE = defaultPalette;
 import { usePlayerStore } from "../../store/playerStore";
 import { useQuestStore } from "../../store/questStore";
 import { useStreakStore } from "../../store/streakStore";
 import { useAchievementStore } from "../../store/achievementStore";
 
 export default function SettingsScreen() {
-  const { palette } = useTheme(); // Use dynamic theme palette
   const resetPlayer = usePlayerStore((state) => state.resetPlayer);
   const resetQuests = useQuestStore((state) => state.resetQuests);
   const resetStreak = useStreakStore((state) => state.resetStreak);
@@ -30,8 +32,11 @@ export default function SettingsScreen() {
     isDark,
     toggleTheme,
     setThemeMode,
-    palette: themePalette,
+    palette: contextPalette,
   } = useTheme();
+
+  // Fallback to default palette if theme is not available
+  const themePalette = contextPalette || FALLBACK_PALETTE;
 
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -100,8 +105,8 @@ export default function SettingsScreen() {
                     value={option.switchValue}
                     onValueChange={option.onSwitchChange}
                     trackColor={{
-                      false: palette.divider,
-                      true: palette.accentSecondary,
+                      false: themePalette.divider,
+                      true: themePalette.accentSecondary,
                     }}
                     thumbColor={option.switchValue ? "#fff" : "#f4f3f4"}
                   />
@@ -332,17 +337,17 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     padding: spacing.lg,
     marginBottom: spacing.md,
-    shadowColor: palette.shadow,
+    shadowColor: themePalette.shadow,
     shadowOpacity: 0.15,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
     borderWidth: 1,
-    borderColor: palette.dividerLight,
+    borderColor: themePalette.dividerLight,
   },
 
   dangerCard: {
-    borderColor: palette.accentError,
+    borderColor: themePalette.accentError,
     borderWidth: 2,
     backgroundColor: "rgba(255, 236, 236, 0.95)",
   },
@@ -364,19 +369,19 @@ const styles = StyleSheet.create({
   optionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: palette.inkStrong,
+    color: themePalette.inkStrong,
     marginBottom: spacing.xs,
   },
 
   optionDescription: {
     fontSize: 14,
-    color: palette.inkMuted,
+    color: themePalette.inkMuted,
     lineHeight: 20,
   },
 
   optionSubtitle: {
     fontSize: 12,
-    color: palette.accentTertiary,
+    color: themePalette.accentTertiary,
     marginTop: spacing.xs,
     fontStyle: "italic",
   },
@@ -387,7 +392,7 @@ const styles = StyleSheet.create({
   },
 
   dangerText: {
-    color: palette.accentError,
+    color: themePalette.accentError,
   },
 
   disabledText: {
